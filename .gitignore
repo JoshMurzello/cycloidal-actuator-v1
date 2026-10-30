@@ -1,0 +1,6 @@
+build/
+**/Debug/
+**/Release/
+**/.settings/
+**/__pycache__/
+.DS_Store

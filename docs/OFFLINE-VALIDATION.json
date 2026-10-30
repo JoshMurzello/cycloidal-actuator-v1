@@ -1,0 +1,33 @@
+{
+  "verified_at_utc": "2026-10-30T18:28:07.911092+00:00",
+  "status": "PASS",
+  "firmware": "usb-panel-3",
+  "protocol": 3,
+  "compiler": "arm-none-eabi-gcc (GNU Tools for STM32 12.3.rel1.20240612-1315) 12.3.1 20230626",
+  "source_main_sha256": "74d0c914f870a3e311c3bdaee61d312f69dea20a5d37c4a98fa6e02a01c596a0",
+  "compiled_sources": 26,
+  "compiler_warnings": 0,
+  "host_firmware_simulation": "PASS: actual firmware/parser functions with GPIO/UART/time stubs",
+  "panel_transport_tests": {
+    "passed": 17,
+    "failed": 0
+  },
+  "binary_identical_to_saved_protocol3_image": true,
+  "artifacts": {
+    "cycloidal-usb-panel-3.elf": {
+      "bytes": 49992,
+      "sha256": "72b16ef02bfadc40ac17c3f34bc602fac0b28f6c8a03c81176b8656c5305a405"
+    },
+    "cycloidal-usb-panel-3.bin": {
+      "bytes": 22704,
+      "sha256": "e12ef78b02a2acf0feaec4a3dbb2751b9d3784890245aa8549796322889db51e"
+    },
+    "cycloidal-usb-panel-3.hex": {
+      "bytes": 63942,
+      "sha256": "1030279b926a4b95160639260de434a171f6b7b06b58fe3f6b8b3e0f2b3e2524"
+    }
+  },
+  "hardware_programmed_or_moved": false,
+  "network_publication_performed": false,
+  "note": "Fresh offline build only. Prior October11 flash and handshake are historical evidence, not new hardware validation."
+}

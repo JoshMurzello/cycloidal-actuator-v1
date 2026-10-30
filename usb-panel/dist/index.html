@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Local USB control panel for the cycloidal actuator test stand.">
+  <title>Cycloidal actuator · USB bench</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script type="module" src="./app.js?v=20261011-speed3"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="header">
+      <div class="brand"><span class="brand-mark" aria-hidden="true">◎</span><div><p class="eyebrow">ENGINEERING / TEST STAND</p><h1>Cycloidal actuator <span>USB bench</span></h1></div></div>
+      <button id="theme" class="icon-button" type="button" aria-label="Switch color theme">◐</button>
+    </header>
+    <section class="connection-bar" aria-label="USB connection">
+      <div class="connection-state"><span id="connection-dot" class="dot"></span><div><strong id="connection-title">Connect your STM32</strong><span id="connection-detail">USB cable → desktop Chrome → select the ST-LINK serial port</span></div></div>
+      <div class="connection-actions"><button id="connect" class="button primary" type="button">Connect USB <span aria-hidden="true">↗</span></button><button id="disconnect" class="button subtle" type="button" disabled>Disconnect</button></div>
+    </section>
+    <div id="notice" class="notice" role="status" aria-live="polite">Motion stays disabled until the panel verifies the matching USB firmware.</div>
+    <details class="instructions card" style="margin:0 0 18px"><summary>USB connection diagnostics <span>+</span></summary><pre id="usb-diagnostics" style="white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;line-height:1.6">No serial data yet.</pre></details>
+    <main>
+      <div class="bench-grid">
+        <section class="card position-card" aria-labelledby="position-title">
+          <div class="card-heading"><h2 id="position-title">Commanded position</h2><span id="mode" class="badge">OFFLINE</span></div>
+          <div class="position-top"><div><div class="position-number"><span id="position">—</span><span id="position-unit">pulses</span></div><p id="position-detail" class="muted">Relative to the reference you set</p></div><svg class="dial" viewBox="0 0 120 120" role="img" aria-label="Commanded position indicator"><circle class="dial-track" cx="60" cy="60" r="48"/><path class="dial-ticks" d="M60 7v8M113 60h-8M60 113v-8M7 60h8"/><g id="dial-arm"><path class="dial-pointer" d="M60 60H98"/><circle class="dial-tip" cx="98" cy="60" r="5"/></g><circle class="dial-center" cx="60" cy="60" r="9"/></svg></div>
+          <div class="telemetry-grid"><div><span>From boot</span><strong id="boot-position">— pulses</strong></div><div><span>Motion rate</span><strong id="live-rate">— pulses/s</strong></div><div><span>Travel limit</span><strong id="live-limit">— pulses</strong></div><div><span>Run remaining</span><strong id="live-remaining">— pulses</strong></div></div>
+          <p class="footnote">Calculated from commanded steps. Missed steps, backlash, and deflection are not measured.</p>
+        </section>
+        <section class="card stop-card" aria-labelledby="stop-title">
+          <p class="eyebrow">ALWAYS WITHIN REACH</p><h2 id="stop-title">Stop motion.<br>Keep the reading.</h2>
+          <button id="stop" class="stop-button" type="button" disabled><span class="stop-symbol" aria-hidden="true">■</span> Stop &amp; Hold</button>
+          <p class="muted">Stops pulses and keeps the motor energized.<br><kbd>Esc</kbd> or <kbd>Space</kbd> also stops motion.</p>
+          <button id="release" class="button release-button" type="button" disabled>Release motor <span aria-hidden="true">↘</span></button><p class="footnote">Release disables the driver; the arm may move under load.</p>
+        </section>
+        <section class="card jog-card" aria-labelledby="jog-title">
+          <div class="card-heading"><div><p class="eyebrow">01 / POSITION</p><h2 id="jog-title">Hold to jog</h2></div><span class="small-tag">← / →</span></div>
+          <p class="muted">Moves while pressed. Let go to stop and hold.</p>
+          <div class="jog-buttons"><button id="jog-back" class="jog-button" type="button" disabled><span aria-hidden="true">←</span><strong>Reverse</strong><small>− direction</small></button><button id="jog-forward" class="jog-button" type="button" disabled><span aria-hidden="true">→</span><strong>Forward</strong><small>+ direction</small></button></div>
+          <div class="input-grid three"><label>Jog rate <div class="input-with-unit"><input id="jog-rate" type="number" value="500" min="1" max="2000" step="1"><span>pulses/s</span></div></label><label>Run travel <div class="input-with-unit"><input id="jog-pulses" type="number" value="2000" min="1" max="20000" step="1"><span>pulses</span></div></label><label>Run timeout <div class="input-with-unit"><input id="jog-seconds" type="number" value="15" min="0.1" max="30" step="0.1"><span>s</span></div></label></div>
+          <p id="jog-estimate" class="footnote">Select the driver's microstep setting to show estimated angles.</p>
+        </section>
+        <section class="card load-card" aria-labelledby="load-title">
+          <div class="card-heading"><div><p class="eyebrow">02 / MEASURE</p><h2 id="load-title">Slow loading</h2></div><span class="badge amber">WATCH SCALE</span></div>
+          <p class="muted">Advances continuously into contact until you stop it or a run limit is reached.</p>
+          <div class="load-direction"><span>Loading direction</span><div class="segmented"><label><input type="radio" name="load-direction" value="-1"><span>← Reverse</span></label><label><input type="radio" name="load-direction" value="1" checked><span>Forward →</span></label></div></div>
+          <div class="input-grid three"><label>Loading rate <div class="input-with-unit"><input id="load-rate" type="number" value="50" min="1" max="50" step="1"><span>pulses/s</span></div></label><label>Run travel <div class="input-with-unit"><input id="load-pulses" type="number" value="200" min="1" max="20000" step="1"><span>pulses</span></div></label><label>Run timeout <div class="input-with-unit"><input id="load-seconds" type="number" value="15" min="0.1" max="30" step="0.1"><span>s</span></div></label></div>
+          <button id="load" class="button loading-button" type="button" disabled>Start slow loading <span aria-hidden="true">↗</span></button>
+          <p class="footnote">This ramps displacement, not current or force. Watch the scale and use Stop &amp; Hold at your target reading.</p>
+        </section>
+      </div>
+      <section class="card setup-card" aria-labelledby="setup-title">
+        <div class="card-heading"><div><p class="eyebrow">SETUP / BEFORE CONTACT</p><h2 id="setup-title">Reference &amp; travel</h2></div><span class="small-tag">15:1 reduction · 200 steps/rev</span></div>
+        <div class="setup-grid">
+          <div><label for="microsteps">Driver microstepping</label><select id="microsteps"><option value="">Unconfirmed · display pulses</option><option value="1">Full step (1×)</option><option value="2">Half step (2×)</option><option value="4">Quarter step (4×)</option><option value="8">8× microstepping</option><option value="16">16× microstepping</option><option value="32">32× microstepping</option></select><p class="footnote">Match the actual TB6600 DIP switches. This changes the display only.</p></div>
+          <div><label for="reference-label">Label this position</label><div class="inline-control"><select id="reference-label"><option value="0">0° reference</option><option value="180">180° reference</option></select><button id="zero" class="button secondary" type="button" disabled>Set reference</button></div><p class="footnote">Stops must be complete. Setting a reference preserves the boot travel limit.</p></div>
+          <div><label for="limit">Travel from boot reference</label><div class="inline-control"><div class="input-with-unit"><input id="limit" type="number" value="2000" min="1" max="20000" step="1"><span>± pulses</span></div><button id="apply-limit" class="button secondary" type="button" disabled>Apply</button></div><p id="limit-estimate" class="footnote">The board enforces this limit in both directions from its boot position.</p></div>
+        </div>
+      </section>
+      <section class="card measurements" aria-labelledby="measurements-title">
+        <div class="card-heading"><div><p class="eyebrow">03 / RECORD</p><h2 id="measurements-title">Scale readings</h2></div><button id="export" class="button subtle" type="button" disabled>Export CSV ↓</button></div>
+        <p class="muted">Enter a settled reading after Stop &amp; Hold. Measure the perpendicular distance from the shaft to the scale force line.</p>
+        <div class="measurement-form"><label>Scale reading <div class="input-with-unit"><input id="grams" type="number" min="0" step="0.1" placeholder="e.g. 300"><span>g</span></div></label><label>Baseline reading <div class="input-with-unit"><input id="baseline" type="number" min="0" step="0.1" value="0"><span>g</span></div></label><label>Moment arm <div class="input-with-unit"><input id="arm" type="number" min="0.1" step="0.1" placeholder="Measured distance"><span>mm</span></div></label><label>Test note <input id="note" type="text" maxlength="180" placeholder="Current setting, trial, observations…"></label><button id="record" class="button secondary" type="button">Record reading +</button></div>
+        <div class="torque-result"><span>Contact moment</span><strong id="torque">— <small>N·m</small></strong><span id="torque-detail">Enter the reading and measured moment arm.</span></div>
+        <div class="table-scroll"><table><thead><tr><th>Trial</th><th>Time</th><th>Scale</th><th>Net load</th><th>Arm</th><th>Contact moment</th><th>Position</th><th>Note</th></tr></thead><tbody id="readings"><tr class="empty-row"><td colspan="8">Your recorded readings will appear here. Export them before closing this page.</td></tr></tbody></table></div>
+        <p class="footnote">Contact moment = (reading − baseline) × 0.00980665 × arm in metres. Arm gravity and gearbox friction are not corrected. This static test does not measure gearbox efficiency or prove maximum torque.</p>
+      </section>
+      <details class="card instructions"><summary>Quick bench procedure <span aria-hidden="true">+</span></summary><ol><li>Flash the matching firmware, connect the board by USB, and select its ST-LINK serial port.</li><li>Keep the arm clear of the scale. Verify which direction moves toward contact, then approach slowly.</li><li>Stop at light contact, set a reference, and enter the baseline scale reading and measured moment arm.</li><li>Start slow loading. Stop and hold at the chosen reading; record it, then reverse to unload.</li></ol><p class="footnote">The board stops motion if the connection lease expires, the physical blue button is pressed, or a travel/time budget is reached. It cannot detect stall, force, or scale overload. Voltage and the driver's current DIP setting remain fixed.</p></details>
+    </main>
+    <footer><span>LOCAL USB CONTROL · PROTOCOL 3</span><span id="telemetry-age">No live telemetry</span></footer>
+  </div>
+</body>
+</html>
